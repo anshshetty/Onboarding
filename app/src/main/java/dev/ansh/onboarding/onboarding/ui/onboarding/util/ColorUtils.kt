@@ -1,6 +1,5 @@
-package dev.ansh.onboarding.onboarding.ui.onboarding
+package dev.ansh.onboarding.onboarding.ui.onboarding.util
 
-import android.graphics.Color as AndroidColor
 import androidx.compose.ui.graphics.Color
 import java.util.Locale
 import androidx.core.graphics.toColorInt

@@ -14,7 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dev.ansh.onboarding.onboarding.di.NetworkModule
 import dev.ansh.onboarding.onboarding.navigation.NavGraph
-import dev.ansh.onboarding.onboarding.ui.onboarding.OnboardingViewModel
+import dev.ansh.onboarding.onboarding.ui.onboarding.viewmodel.OnboardingViewModel
 import dev.ansh.onboarding.onboarding.ui.theme.JarOnboardingTheme
 
 /**

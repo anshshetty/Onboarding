@@ -1,27 +1,32 @@
-package dev.ansh.onboarding.onboarding.ui.onboarding
+package dev.ansh.onboarding.onboarding.ui.onboarding.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.ansh.onboarding.onboarding.data.model.ManualBuyEducationData
-import dev.ansh.onboarding.onboarding.domain.EducationRepositoryInterface
-import kotlin.math.max
-import kotlin.math.roundToLong
+import dev.ansh.onboarding.onboarding.domain.EducationRepository
+import dev.ansh.onboarding.onboarding.ui.onboarding.model.OnboardingCardUiModel
+import dev.ansh.onboarding.onboarding.ui.onboarding.state.OnboardingUiState
+import dev.ansh.onboarding.onboarding.ui.onboarding.state.Timing
+import dev.ansh.onboarding.onboarding.ui.onboarding.util.DefaultPalette
+import dev.ansh.onboarding.onboarding.ui.onboarding.util.asColorOr
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.max
+import kotlin.math.roundToLong
 
 /**
  * Coordinates onboarding data loading and animation timeline orchestration.
  */
 class OnboardingViewModel(
-    private val educationRepository: EducationRepositoryInterface,
+    private val educationRepository: EducationRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -151,7 +156,7 @@ class OnboardingViewModel(
 
         autoplayJob = viewModelScope.launch {
             if (timing.intro > 0) {
-                kotlinx.coroutines.delay(timing.intro)
+                delay(timing.intro)
             }
 
             repeat(cardCount) { index ->
@@ -167,7 +172,7 @@ class OnboardingViewModel(
 
                 val holdDuration = timing.enter + timing.hold
                 if (holdDuration > 0) {
-                    kotlinx.coroutines.delay(holdDuration)
+                    delay(holdDuration)
                 }
 
                 val isLast = index == cardCount - 1
@@ -191,7 +196,7 @@ class OnboardingViewModel(
                     if (timing.collapse > 0) {
                         val wait = if (overlapDelay > 0) overlapDelay else 0L
                         if (wait > 0) {
-                            kotlinx.coroutines.delay(wait)
+                            delay(wait)
                         }
                     }
                 }
@@ -209,15 +214,5 @@ class OnboardingViewModel(
             collapse = collapse,
             overlap = computedOverlap.coerceAtMost(collapse)
         )
-    }
-
-    private object DefaultPalette {
-        val ScreenGradientStart = Color(0xFF4A0F5C)
-        val ScreenGradientEnd = Color(0xFFAF1B87)
-        val CardBackground = Color(0xFF311B4B)
-        val StrokeStart = Color(0x66FFFFFF)
-        val StrokeEnd = Color(0x66FFFFFF)
-        val GradientStart = Color(0xFF6A1B9A)
-        val GradientEnd = Color(0xFFAD1457)
     }
 }

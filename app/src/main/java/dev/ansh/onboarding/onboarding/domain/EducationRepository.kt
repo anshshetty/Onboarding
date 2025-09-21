@@ -5,7 +5,7 @@ import dev.ansh.onboarding.onboarding.data.model.ManualBuyEducationData
 /**
  * Interface for education data repository
  */
-interface EducationRepositoryInterface {
+interface EducationRepository {
 
     /**
      * Loads education data from API with in-memory caching
