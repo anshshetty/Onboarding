@@ -3,7 +3,7 @@ package dev.ansh.onboarding.onboarding.di
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dev.ansh.onboarding.onboarding.data.api.EducationApi
 import dev.ansh.onboarding.onboarding.data.repository.EducationRepository
-import dev.ansh.onboarding.onboarding.data.repository.EducationRepositoryInterface
+import dev.ansh.onboarding.onboarding.domain.EducationRepositoryInterface
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
