@@ -2,6 +2,7 @@ package dev.ansh.onboarding.onboarding.data.repository
 
 import dev.ansh.onboarding.onboarding.data.api.EducationApi
 import dev.ansh.onboarding.onboarding.data.model.ManualBuyEducationData
+import dev.ansh.onboarding.onboarding.domain.EducationRepositoryInterface
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
