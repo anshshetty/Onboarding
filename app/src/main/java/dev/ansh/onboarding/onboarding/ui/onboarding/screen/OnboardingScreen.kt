@@ -171,7 +171,6 @@ private fun SharedTransitionScope.OnboardingBody(
                 .padding(paddingValues)
                 .graphicsLayer { clip = false }
         ) {
-            // Full-screen scrollable content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -188,7 +187,6 @@ private fun SharedTransitionScope.OnboardingBody(
                         .fillMaxSize()
                 )
             }
-            // CTA button positioned as overlay at bottom
             if (state.showCta && state.cta != null) {
                 CtaButton(
                     cta = state.cta,
@@ -215,7 +213,6 @@ private fun OnboardingTopBar(
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Show toolbar icon if available
                 iconUrl?.let { iconUrl ->
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current).data(iconUrl)
@@ -250,7 +247,6 @@ private fun OnboardingTopBar(
 
 @Composable
 private fun IntroHeader(state: OnboardingUiState) {
-    // Intro section with icon
     AnimatedVisibility(
         visible = state.revealedCardCount <= 0,
         enter = fadeIn(tween(100)),
@@ -325,21 +321,18 @@ private fun IntroHeader(state: OnboardingUiState) {
 private fun SharedTransitionScope.CardCarousel(
     state: OnboardingUiState, onCardClick: (Int) -> Unit, modifier: Modifier = Modifier
 ) {
-    // Show all cards, but control their visibility in AnimatedVisibility
     val allCards = state.cards
 
-    // Use a regular, scrollable Column instead of a LazyColumn
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()) // Make the Column scrollable
+            .verticalScroll(rememberScrollState())
             .graphicsLayer {
                 clip = false
             },
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Add padding manually since there's no contentPadding
-        Spacer(modifier = Modifier.height(1.dp)) // Spacer for top padding if needed
+        Spacer(modifier = Modifier.height(1.dp))
 
         allCards.forEach { card ->
             val stage = when {
@@ -348,10 +341,8 @@ private fun SharedTransitionScope.CardCarousel(
                 else -> CardStage.Expanded
             }
 
-            // A card should be visible if it's within the revealed count
             val shouldBeVisible = card.id < state.revealedCardCount
 
-            // Use autoplay animation for any card that appears while autoplay is active
             val isAutoplayReveal = !state.autoplayCompleted
 
             CardItem(
@@ -365,7 +356,6 @@ private fun SharedTransitionScope.CardCarousel(
             )
         }
 
-        // Add padding at the bottom to ensure CTA doesn't overlap last card
         Spacer(modifier = Modifier.height(120.dp))
     }
 }
@@ -384,21 +374,17 @@ private fun SharedTransitionScope.CardItem(
     val visible = shouldBeVisible
     val enterDuration = timing.enter.toAnimationDuration()
 
-    // Get screen height to create a more reliable animation
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
     val slideAnimation = if (isAutoplay) {
-        // During autoplay: slide from just below the visible screen
         slideInVertically(
             animationSpec = tween(durationMillis = enterDuration, easing = EaseOutCubic),
         ) {
-            // Start the animation from the full height of the screen
             screenHeightPx.toInt()
         }
     } else {
-        // During manual expansion: slide from center
         slideInVertically(
             animationSpec = tween(durationMillis = enterDuration, easing = EaseOutCubic)
         ) { fullHeight -> fullHeight / 2 }
@@ -411,8 +397,6 @@ private fun SharedTransitionScope.CardItem(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            // graphicsLayer on the item is no longer strictly necessary if the parent has it,
-            // but it doesn't hurt.
             .zIndexFor(stage)
     ) {
         CardSurface(
@@ -469,16 +453,11 @@ private fun SharedTransitionScope.CardSurface(
     }
 
     val surfaceShape = RoundedCornerShape(corner)
-    val surfaceBrush = remember(stage, card.backgroundColor, card.gradientStart, card.gradientEnd) {
+    val backgroundColor = remember(stage, card.gradientStart) {
         if (stage == CardStage.Collapsed) {
-            Brush.verticalGradient(
-                colors = listOf(
-                    card.backgroundColor.copy(alpha = 0.95f),
-                    card.backgroundColor.copy(alpha = 0.72f)
-                )
-            )
+            Color.Black.copy(alpha = 0.3f)
         } else {
-            Brush.linearGradient(listOf(card.gradientStart, card.gradientEnd))
+            card.gradientEnd
         }
     }
     val strokeBrush = remember(card.strokeStartColor, card.strokeEndColor) {
@@ -495,7 +474,7 @@ private fun SharedTransitionScope.CardSurface(
             )
             .shadow(elevation = elevation, shape = surfaceShape)
             .clip(surfaceShape)
-            .background(surfaceBrush)
+            .background(backgroundColor)
             .border(
                 width = 1.dp,
                 brush = strokeBrush,
@@ -554,7 +533,6 @@ private fun PillContent(card: OnboardingCardUiModel) {
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Thumbnail image
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(card.imageUrl)
@@ -569,7 +547,6 @@ private fun PillContent(card: OnboardingCardUiModel) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Text
         Text(
             text = card.collapsedTitle,
             color = Color.White,
@@ -577,7 +554,6 @@ private fun PillContent(card: OnboardingCardUiModel) {
             modifier = Modifier.weight(1f)
         )
 
-        // Chevron icon
         Icon(
             imageVector = Icons.Default.KeyboardArrowDown,
             contentDescription = null,
