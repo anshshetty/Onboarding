@@ -34,10 +34,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -65,7 +65,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -158,25 +160,30 @@ private fun SharedTransitionScope.OnboardingBody(
                 title = state.toolbarTitle, iconUrl = state.toolBarIcon, onBackClick = onBackClick
             )
         }) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .graphicsLayer { clip = false }
         ) {
-            IntroHeader(state)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            CardCarousel(
-                state = state,
-                onCardClick = onCardClick,
+            // Full-screen scrollable content
+            Column(
                 modifier = Modifier
-                    .weight(1f, fill = true)
-                    .padding(bottom = 16.dp)
-            )
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp)
+            ) {
+                IntroHeader(state)
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CardCarousel(
+                    state = state,
+                    onCardClick = onCardClick,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+            }
+            // CTA button positioned as overlay at bottom
             if (state.showCta && state.cta != null) {
                 CtaButton(
                     cta = state.cta,
@@ -184,8 +191,9 @@ private fun SharedTransitionScope.OnboardingBody(
                     enabled = state.autoplayCompleted,
                     onClick = onCtaClick,
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.BottomCenter)
                         .navigationBarsPadding()
+                        .padding(bottom = 16.dp)
                 )
             }
         }
@@ -244,23 +252,64 @@ private fun IntroHeader(state: OnboardingUiState) {
         exit = fadeOut(tween(100))
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.introTitle.isNotBlank()) {
                 Text(
-                    text = state.introTitle, style = MaterialTheme.typography.headlineSmall.copy(
-                        color = Color.White, fontWeight = FontWeight.SemiBold
-                    ), textAlign = TextAlign.Center
+                    text = state.introTitle,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    textAlign = TextAlign.Center
                 )
             }
 
-            if (state.introSubtitle.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = state.introSubtitle, style = MaterialTheme.typography.bodyLarge.copy(
-                        color = Color.White.copy(alpha = 0.85f), lineHeight = 20.sp
-                    ), textAlign = TextAlign.Center
-                )
+            val subtitle = state.introSubtitle
+            val subtitleIcon = state.introSubtitleIcon
+
+            if (subtitle.isNotBlank()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (!subtitleIcon.isNullOrBlank()) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color.White.copy(alpha = 0.12f))
+                            .padding(horizontal = 18.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(subtitleIcon)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp),
+                            contentScale = ContentScale.Fit
+                        )
+
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = Color.White.copy(alpha = 0.9f),
+                                lineHeight = 20.sp
+                            ),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = Color.White.copy(alpha = 0.85f),
+                            lineHeight = 20.sp
+                        ),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -271,49 +320,97 @@ private fun IntroHeader(state: OnboardingUiState) {
 private fun SharedTransitionScope.CardCarousel(
     state: OnboardingUiState, onCardClick: (Int) -> Unit, modifier: Modifier = Modifier
 ) {
-    val cards = remember(state.cards, state.revealedCardCount) {
-        state.cards.take(state.revealedCardCount.coerceIn(0, state.cards.size))
-    }
+    // Show all cards, but control their visibility in AnimatedVisibility
+    val allCards = state.cards
 
-    LazyColumn(
-        modifier = modifier.fillMaxWidth(),
+    // Use a regular, scrollable Column instead of a LazyColumn
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()) // Make the Column scrollable
+            .graphicsLayer {
+                // This is still useful to ensure animations aren't clipped by parent containers
+                clip = false
+            },
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        items(
-            items = cards, key = { it.id }) { card ->
+        // Add padding manually since there's no contentPadding
+        Spacer(modifier = Modifier.height(1.dp)) // Spacer for top padding if needed
+
+        allCards.forEach { card ->
             val stage = when {
                 card.id >= state.revealedCardCount -> CardStage.Hidden
                 state.collapsedCardIndices.contains(card.id) -> CardStage.Collapsed
                 else -> CardStage.Expanded
             }
 
+            // A card should be visible if it's within the revealed count
+            val shouldBeVisible = card.id < state.revealedCardCount
+
+            // Use autoplay animation for any card that appears while autoplay is active
+            val isAutoplayReveal = !state.autoplayCompleted
+
             CardItem(
                 card = card,
                 stage = stage,
                 index = card.id,
                 timing = state.timing,
-                onClick = { onCardClick(card.id) })
+                onClick = { onCardClick(card.id) },
+                isAutoplay = isAutoplayReveal,
+                shouldBeVisible = shouldBeVisible
+            )
         }
+
+        // Add padding at the bottom to ensure CTA doesn't overlap last card
+        Spacer(modifier = Modifier.height(120.dp))
     }
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SharedTransitionScope.CardItem(
-    card: OnboardingCardUiModel, stage: CardStage, index: Int, timing: Timing, onClick: () -> Unit
+    card: OnboardingCardUiModel,
+    stage: CardStage,
+    index: Int,
+    timing: Timing,
+    onClick: () -> Unit,
+    isAutoplay: Boolean,
+    shouldBeVisible: Boolean
 ) {
-    val visible = stage != CardStage.Hidden
+    val visible = shouldBeVisible
     val enterDuration = timing.enter.toAnimationDuration()
 
-    AnimatedVisibility(
-        visible = visible, enter = slideInVertically(
+    // Get screen height to create a more reliable animation
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+
+    val slideAnimation = if (isAutoplay) {
+        // During autoplay: slide from just below the visible screen
+        slideInVertically(
+            animationSpec = tween(durationMillis = enterDuration, easing = EaseOutCubic),
+        ) {
+            // Start the animation from the full height of the screen
+            screenHeightPx.toInt()
+        }
+    } else {
+        // During manual expansion: slide from center
+        slideInVertically(
             animationSpec = tween(durationMillis = enterDuration, easing = EaseOutCubic)
-        ) { fullHeight -> fullHeight / 2 } + fadeIn(
+        ) { fullHeight -> fullHeight / 2 }
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideAnimation + fadeIn(
             animationSpec = tween(durationMillis = enterDuration / 2)
-        ), modifier = Modifier
+        ),
+        modifier = Modifier
             .fillMaxWidth()
-            .zIndexFor(stage)) {
+            // graphicsLayer on the item is no longer strictly necessary if the parent has it,
+            // but it doesn't hurt.
+            .zIndexFor(stage)
+    ) {
         CardSurface(
             card = card,
             stage = stage,
@@ -359,11 +456,29 @@ private fun SharedTransitionScope.CardSurface(
         }
     }
 
+
     val collapseDuration = timing.collapse.toAnimationDuration()
 
     val paddingValues = when (stage) {
         CardStage.Collapsed -> PaddingValues(horizontal = 20.dp, vertical = 18.dp)
         else -> PaddingValues(all = 24.dp)
+    }
+
+    val surfaceShape = RoundedCornerShape(corner)
+    val surfaceBrush = remember(stage, card.backgroundColor, card.gradientStart, card.gradientEnd) {
+        if (stage == CardStage.Collapsed) {
+            Brush.verticalGradient(
+                colors = listOf(
+                    card.backgroundColor.copy(alpha = 0.95f),
+                    card.backgroundColor.copy(alpha = 0.72f)
+                )
+            )
+        } else {
+            Brush.linearGradient(listOf(card.gradientStart, card.gradientEnd))
+        }
+    }
+    val strokeBrush = remember(card.strokeStartColor, card.strokeEndColor) {
+        Brush.linearGradient(listOf(card.strokeStartColor, card.strokeEndColor))
     }
 
     Box(
@@ -374,13 +489,13 @@ private fun SharedTransitionScope.CardSurface(
                 rememberSharedContentState(key = "card-$index"),
                 animatedVisibilityScope = animatedVisibilityScope
             )
-            .shadow(elevation = elevation, shape = RoundedCornerShape(corner))
-            .clip(RoundedCornerShape(corner))
-            .background(if (stage == CardStage.Collapsed) Color.Black.copy(alpha = 0.3f) else card.gradientStart)
+            .shadow(elevation = elevation, shape = surfaceShape)
+            .clip(surfaceShape)
+            .background(surfaceBrush)
             .border(
                 width = 1.dp,
-                brush = Brush.linearGradient(listOf(card.strokeStartColor, card.strokeEndColor)),
-                shape = RoundedCornerShape(corner)
+                brush = strokeBrush,
+                shape = surfaceShape
             )
             .clickable(onClick = onClick)
             .padding(paddingValues)
