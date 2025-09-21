@@ -4,9 +4,6 @@ import androidx.compose.ui.graphics.Color
 import dev.ansh.onboarding.onboarding.data.model.SaveButtonCta
 import dev.ansh.onboarding.onboarding.ui.onboarding.model.OnboardingCardUiModel
 
-/**
- * Immutable UI state consumed by the onboarding screen.
- */
 data class OnboardingUiState(
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
@@ -29,9 +26,6 @@ data class OnboardingUiState(
     val autoplayCompleted: Boolean = false
 )
 
-/**
- * All timing knobs that drive the staged card animation timeline.
- */
 data class Timing(
     val intro: Long = 400L,
     val enter: Long = 900L,

@@ -22,9 +22,6 @@ import kotlinx.coroutines.withContext
 import kotlin.math.max
 import kotlin.math.roundToLong
 
-/**
- * Coordinates onboarding data loading and animation timeline orchestration.
- */
 class OnboardingViewModel(
     private val educationRepository: EducationRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -39,9 +36,6 @@ class OnboardingViewModel(
         refresh()
     }
 
-    /**
-     * Public entry point to re-fetch onboarding education data.
-     */
     fun refresh() {
         autoplayJob?.cancel()
         viewModelScope.launch {
@@ -72,9 +66,6 @@ class OnboardingViewModel(
         }
     }
 
-    /**
-     * Collapses all cards except the selected one and keeps it expanded.
-     */
     fun onCardSelected(index: Int) {
         val cards = _uiState.value.cards
         if (index !in cards.indices) return
@@ -94,9 +85,6 @@ class OnboardingViewModel(
         }
     }
 
-    /**
-     * Called when autoplay animation completes on the compose side.
-     */
     fun onAutoPlayFinished() {
         _uiState.update { it.copy(autoplayCompleted = true) }
     }
