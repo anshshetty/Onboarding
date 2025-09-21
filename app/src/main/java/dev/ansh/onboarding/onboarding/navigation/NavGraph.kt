@@ -22,7 +22,8 @@ object Routes {
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    onboardingViewModel: OnboardingViewModel
+    onboardingViewModel: OnboardingViewModel,
+    finishActivity: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -35,7 +36,7 @@ fun NavGraph(
                     // If there's a previous destination, navigate back
                     // Otherwise, finish the activity (handled in MainActivity)
                     if (!navController.popBackStack()) {
-
+                        finishActivity()
                     }
                 },
                 onNavigateToLanding = {

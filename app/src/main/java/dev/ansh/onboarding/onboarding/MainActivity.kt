@@ -55,7 +55,9 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         navController = navController,
                         onboardingViewModel = onboardingViewModel
-                    )
+                    ){
+                        finish()
+                    }
                 }
             }
         }
