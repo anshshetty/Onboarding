@@ -5,8 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.ansh.onboarding.jaronboarding.presentation.landing.LandingScreen
-import dev.ansh.onboarding.onboarding.ui.onboarding.OnboardingScreen
-import dev.ansh.onboarding.onboarding.ui.onboarding.OnboardingViewModel
+import dev.ansh.onboarding.onboarding.ui.onboarding.screen.OnboardingScreen
+import dev.ansh.onboarding.onboarding.ui.onboarding.viewmodel.OnboardingViewModel
 
 /**
  * Navigation routes

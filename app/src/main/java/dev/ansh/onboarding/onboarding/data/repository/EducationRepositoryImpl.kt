@@ -2,16 +2,16 @@ package dev.ansh.onboarding.onboarding.data.repository
 
 import dev.ansh.onboarding.onboarding.data.api.EducationApi
 import dev.ansh.onboarding.onboarding.data.model.ManualBuyEducationData
-import dev.ansh.onboarding.onboarding.domain.EducationRepositoryInterface
+import dev.ansh.onboarding.onboarding.domain.EducationRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
  * Repository for education data with in-memory caching
  */
-class EducationRepository(
+class EducationRepositoryImpl(
     private val api: EducationApi
-) : EducationRepositoryInterface {
+) : EducationRepository {
     
     private var cachedData: ManualBuyEducationData? = null
     private val cacheMutex = Mutex()

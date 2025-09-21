@@ -2,8 +2,8 @@ package dev.ansh.onboarding.onboarding.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dev.ansh.onboarding.onboarding.data.api.EducationApi
-import dev.ansh.onboarding.onboarding.data.repository.EducationRepository
-import dev.ansh.onboarding.onboarding.domain.EducationRepositoryInterface
+import dev.ansh.onboarding.onboarding.data.repository.EducationRepositoryImpl
+import dev.ansh.onboarding.onboarding.domain.EducationRepository
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
@@ -53,7 +53,7 @@ object NetworkModule {
         return retrofit.create(EducationApi::class.java)
     }
     
-    fun provideEducationRepository(api: EducationApi): EducationRepositoryInterface {
-        return EducationRepository(api)
+    fun provideEducationRepository(api: EducationApi): EducationRepository {
+        return EducationRepositoryImpl(api)
     }
 }

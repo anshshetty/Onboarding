@@ -1,4 +1,4 @@
-package dev.ansh.onboarding.onboarding.ui.onboarding
+package dev.ansh.onboarding.onboarding.ui.onboarding.model
 
 import androidx.compose.ui.graphics.Color
 

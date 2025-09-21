@@ -1,4 +1,4 @@
-package dev.ansh.onboarding.onboarding.ui.onboarding
+package dev.ansh.onboarding.onboarding.ui.onboarding.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -81,6 +81,11 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import dev.ansh.onboarding.onboarding.data.model.SaveButtonCta
+import dev.ansh.onboarding.onboarding.ui.onboarding.viewmodel.OnboardingViewModel
+import dev.ansh.onboarding.onboarding.ui.onboarding.model.OnboardingCardUiModel
+import dev.ansh.onboarding.onboarding.ui.onboarding.state.OnboardingUiState
+import dev.ansh.onboarding.onboarding.ui.onboarding.state.Timing
+import dev.ansh.onboarding.onboarding.ui.onboarding.util.asColorOr
 import dev.ansh.onboarding.onboarding.ui.theme.JarOnboardingTheme
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
@@ -329,7 +334,6 @@ private fun SharedTransitionScope.CardCarousel(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()) // Make the Column scrollable
             .graphicsLayer {
-                // This is still useful to ensure animations aren't clipped by parent containers
                 clip = false
             },
         verticalArrangement = Arrangement.spacedBy(12.dp),

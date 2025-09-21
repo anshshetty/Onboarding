@@ -1,7 +1,8 @@
-package dev.ansh.onboarding.onboarding.ui.onboarding
+package dev.ansh.onboarding.onboarding.ui.onboarding.state
 
 import androidx.compose.ui.graphics.Color
 import dev.ansh.onboarding.onboarding.data.model.SaveButtonCta
+import dev.ansh.onboarding.onboarding.ui.onboarding.model.OnboardingCardUiModel
 
 /**
  * Immutable UI state consumed by the onboarding screen.
